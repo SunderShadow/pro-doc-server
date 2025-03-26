@@ -6,20 +6,22 @@
 
 ## Карта
 
-| URI                                                          | Метод  | Описание                               |
-|--------------------------------------------------------------|--------|----------------------------------------|
-| **[Админ-панель](#admin)**                                   |        |                                        |
-| [/admin/code/receive](#admin-code-receive)                   | POST   | Получить код админа через SMS          |
-| [/admin/pages/layout/header/edit](#admin-layout-header-edit) | PATCH  | Изменить наполнение подвала страниц    |
-| [/admin/pages/layout/footer/edit](#admin-layout-footer-edit) | PATCH  | Изменить наполнение шапки страниц      |
-| [/admin/pages/home/edit](#admin-pages-home-edit)             | PATCH  | Изменить наполнение главной страницы   |
-| **[Админ-панель > Библитека](#admin-library)**               |        |                                        |
-| [/admin/library/advice/create](#admin-library-advice-create) | PUT    | Создать статью совета в библиотеке     |
-| [/admin/library/advice/edit](#admin-library-advice-edit)     | PATCH  | Редактировать статью совета библиотеки |
-| [/admin/library/advice/delete](#admin-library-advice-delete) | DELETE | Удалить статью совета из библиотеке    |
-| **[Личный кабинет](#lk)**                                    |        |                                        |
-| [/lk/code/receive](#lk-code-receive)                         | POST   | Отправить код через SMS                |
-| [/lk/sign_in](#lk-sign_in)                                   | POST   | Получить токен пользователя            |
+| URI                                                                      | Метод  | Описание                               |
+|--------------------------------------------------------------------------|--------|----------------------------------------|
+| **[Админ-панель](#admin)**                                               |        |                                        |
+| [/admin/code/receive](#admin-code-receive)                               | POST   | Получить код админа через SMS          |
+| [/admin/pages/layout/header/edit](#admin-layout-header-edit)             | PATCH  | Изменить наполнение подвала страниц    |
+| [/admin/pages/layout/footer/edit](#admin-layout-footer-edit)             | PATCH  | Изменить наполнение шапки страниц      |
+| [/admin/pages/home/edit](#admin-pages-home-edit)                         | PATCH  | Изменить наполнение главной страницы   |
+| **[Админ-панель > Библитека](#admin-library)**                           |        |                                        |
+| [/admin/library/advice/create](#admin-library-advice-create)             | PUT    | Создать статью совета в библиотеке     |
+| [/admin/library/advice/{advice_id}/edit](#admin-library-advice-edit)     | PATCH  | Редактировать статью совета библиотеки |
+| [/admin/library/advice/{advice_id}/delete](#admin-library-advice-delete) | DELETE | Удалить статью совета из библиотеке    |
+| **[Личный кабинет](#lk)**                                                |        |                                        |
+| [/lk/code/receive](#lk-code-receive)                                     | POST   | Отправить код через SMS                |
+| [/lk/sign_in](#lk-sign_in)                                               | POST   | Получить токен пользователя            |
+| **[API](#api)**                                                          |        |                                        |
+| [/library/advice/list](#library-advice-list-get)                         | GET    | Получить статьи советов из библиотеки  |
 
 
 ---
@@ -120,7 +122,8 @@ Status: 200
   "slider": [
     {
       "title": string,
-      "description": string
+      "description": string,
+      "image": ""
     },
     ...
   ],
@@ -155,7 +158,7 @@ Status: 200
   "thumbnail": string, // Base64 encoded image
   "title":     string,
   "excerpt":   string,
-  "content":   string,
+  "body":      string,
 }
 ```
 
@@ -167,7 +170,7 @@ Status: 200
 ```
 
 <h2 id="admin-library-advice-edit">Редактировать статью совета в библиотеке</h2>
-### URI: /admin/library/advice/edit
+### URI: /admin/library/advice/{advice_id}/edit
 ### Method: PATCH
 ### Auth: JWT
 
@@ -178,7 +181,7 @@ Status: 200
   "thumbnail": string, //Optional, Base64 encoded image
   "title":     string, //Optional
   "excerpt":   string, //Optional
-  "content":   string, //Optional
+  "body":      string, //Optional
 }
 ```
 
@@ -190,7 +193,7 @@ Status: 200
 ```
 
 <h2 id="admin-library-advice-delete">Удалить статью совета из библиотеки</h2>
-### URI: /admin/library/advice/delete
+### URI: /admin/library/advice/{advice_id}/delete
 ### Method: PATCH
 ### Auth: JWT
 
@@ -256,4 +259,36 @@ Status: 200
 {
   "access_token": string
 } 
+```
+
+<h1 id="api">API</h1>
+
+<h2 id="library-advice-list-get">Удалить статью совета из библиотеки</h2>
+### URI: /library/advice/list
+### Method: GET
+### Auth: none
+
+### GET parameters
+
+```json lines
+{
+  "page": 1 // By default
+}
+```
+
+### Response
+Status: 200
+
+```json lines
+[
+  {
+    "id": number,
+    "title": string,
+    "excerpt": string,
+    "tags": [string],
+    "createdAt": string, // timestamp,
+    "thumbnail": string, // URL
+    "body": string
+  }
+]
 ```
