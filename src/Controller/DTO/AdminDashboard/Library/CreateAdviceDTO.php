@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO\AdminDashboard\Library;
+namespace App\Controller\DTO\AdminDashboard\Library;
 
 readonly class CreateAdviceDTO
 {
@@ -8,7 +8,8 @@ readonly class CreateAdviceDTO
         public string $title,
         public string $thumbnail, // Base64 encoded image
         public string $body,
-        public string $excerpt
+        public string $excerpt,
+        public array $tags
     )
     {
     }

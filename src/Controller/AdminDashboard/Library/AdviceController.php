@@ -4,12 +4,15 @@ namespace App\Controller\AdminDashboard\Library;
 
 use App\Contracts\Library\Advice\PostStorage;
 use App\Contracts\Library\Advice\PostThumbnailStorage;
-use App\DTO\AdminDashboard\Library\CreateAdviceDTO;
-use App\DTO\AdminDashboard\Library\EditAdviceDTO;
-use App\DTO\AdminDashboard\Library\GetAdvicePostsDTO;
+use App\Controller\DTO\AdminDashboard\Library\CreateAdviceDTO;
+use App\Controller\DTO\AdminDashboard\Library\EditAdviceDTO;
+use App\Controller\DTO\AdminDashboard\Library\GetAdvicePostsDTO;
 use App\Entity\AdvicePost;
+use App\Entity\AdvicePostTag;
 use App\Repository\AdvicePostRepository;
+use App\Repository\AdvicePostTagRepository;
 use App\Service\Base64ImageDecoder;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
@@ -20,6 +23,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class AdviceController extends AbstractController
 {
+    public function __construct(
+        private AdvicePostRepository $postRepository,
+        private AdvicePostTagRepository $postTagRepository,
+        private EntityManagerInterface $entityManager
+    )
+    {
+    }
+
     #[Route('/admin/library/advice/create', 'library.advice.create', methods: ['PUT'])]
     public function create(
         #[MapRequestPayload] CreateAdviceDTO $payload,
@@ -32,6 +43,28 @@ class AdviceController extends AbstractController
         $post->setExcerpt($payload->excerpt);
         $post->setBody($payload->body);
         $post->setCreatedAt(new \DateTimeImmutable());
+
+        $existTags = $this->postTagRepository->findManyByNames($payload->tags);
+
+        foreach ($payload->tags as $tag) {
+            $tagExist = false;
+            foreach ($existTags as $existTag) {
+                if ($existTag->getTitle() === $tag) {
+                    $tagExist = true;
+                    break;
+                }
+            }
+
+            if (!$tagExist) {
+                $newTag = new AdvicePostTag();
+                $newTag->setTitle($tag);
+                $existTags[] = $newTag;
+                $this->entityManager->persist($newTag);
+            }
+        }
+
+        $this->entityManager->flush();
+        $post->setTags($existTags);
 
         $postStorage->save($post);
 
@@ -84,10 +117,33 @@ class AdviceController extends AbstractController
             $post->setBody($payload->body);
         }
 
-        if ($payload->thumbnail) {
+        if ($payload->thumbnail && !str_starts_with($payload->thumbnail, 'http')) {
             $img = Base64ImageDecoder::decode($payload->thumbnail);
             $imgName = $post->getId() . '.' . $img->extension;
             $thumbnailStorage->replace($imgName, $img->data);
+        }
+
+        if ($payload->tags) {
+            $existTags = $this->postTagRepository->findManyByNames($payload->tags);
+
+            foreach ($payload->tags as $tag) {
+                $tagExist = false;
+                foreach ($existTags as $existTag) {
+                    if ($existTag->getTitle() === $tag) {
+                        $tagExist = true;
+                        break;
+                    }
+                }
+
+                if (!$tagExist) {
+                    $newTag = new AdvicePostTag();
+                    $newTag->setTitle($tag);
+                    $existTags[] = $newTag;
+                    $this->entityManager->persist($newTag);
+                }
+            }
+            $this->entityManager->flush();
+            $post->setTags($existTags);
         }
 
         $postStorage->save($post);

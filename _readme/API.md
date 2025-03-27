@@ -154,9 +154,10 @@ Status: 200
 ```json lines
 {
   "thumbnail": string, // Base64 encoded image
-  "title":     string,
-  "excerpt":   string,
-  "body":      string,
+  "title": string,
+  "excerpt": string,
+  "body": string,
+  "tags": [string]
 }
 ```
 
@@ -177,9 +178,10 @@ Status: 200
 ```json lines
 {
   "thumbnail": string, //Optional, Base64 encoded image
-  "title":     string, //Optional
-  "excerpt":   string, //Optional
-  "body":      string, //Optional
+  "title": string, //Optional
+  "excerpt": string, //Optional
+  "body": string, //Optional
+  "tags": [string] //Optional
 }
 ```
 

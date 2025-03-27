@@ -40,6 +40,7 @@ class PageConfigRepository extends ServiceEntityRepository
         $this->getEntityManager()->persist($pageConfig);
         $this->getEntityManager()->flush();
 
+
         return $pageConfig;
     }
 }

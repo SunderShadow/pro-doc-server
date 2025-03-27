@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\DTO\AdminDashboard\Layout\FooterConfigDTO;
 use App\Repository\PageConfigRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Ignore;

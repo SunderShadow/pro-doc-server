@@ -1,11 +1,11 @@
 <?php
 
-namespace App\DTO\AdminDashboard\Layout\Footer;
+namespace App\Controller\DTO\AdminDashboard\Layout\Footer;
 
 readonly class SocialDTO
 {
     public function __construct(
         public string $vk,
-        public string $tg
+        public string $telegram
     ) {}
 }

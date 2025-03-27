@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ThumbnailStorage implements \App\Contracts\ThumbnailStorage

@@ -3,13 +3,12 @@
 namespace App\Controller\AdminDashboard\Layout;
 
 use App\Contracts\Layout\ThumbnailStorage;
-use App\DTO\AdminDashboard\Layout\FooterConfigDTO;
+use App\Controller\DTO\AdminDashboard\Layout\FooterConfigDTO;
 use App\Entity\PageConfig;
 use App\Repository\PageConfigRepository;
 use App\Service\Base64ImageDecoder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -19,7 +18,8 @@ class FooterController extends AbstractController
 
     public function __construct(
         private PageConfigRepository $pageConfigRepository,
-        private ThumbnailStorage     $thumbnailStorage
+        private ThumbnailStorage     $thumbnailStorage,
+        #[Autowire('%app.layout.thumbnail.folder.web%')] private string $thumbnailFolder
     )
     {
     }
@@ -36,52 +36,56 @@ class FooterController extends AbstractController
             $pageConfig->setPageName(self::CONFIG_NAME);
         }
 
-        $payloadArray = (array)$payload;
-        $arrayConfig = $pageConfig->getConfig();
+        $config = [
+            "phone" => $payload->phone,
+            "email" => $payload->email,
+            "social" => [
+                "vk" => $payload->social->vk,
+                "telegram" => $payload->social->telegram
+            ],
+            "banners" => [] // Base64 encoded images
+        ];
 
-        // Remove all unrequested data
-        foreach ($payloadArray as $key => $value) {
-            if ($value === null) {
-                unset($payloadArray[$key]);
+        // Save new slider files
+        $bannersToSave = [];
+        foreach ($payload->banners as $banner) {
+            $sliderSize = array_push($config['banners'], $banner);
+
+            if (str_starts_with($banner, 'http')) {
+                $bannersToSave[] = $config['banners'][$sliderSize - 1] = basename($banner);
+                continue;
             }
+
+            $decodedImage = Base64ImageDecoder::decode($banner);
+            $imgName = self::CONFIG_NAME . '.banner.' . time() . '.' . $decodedImage->extension;
+            $this->thumbnailStorage->store($imgName, $decodedImage->data);
+
+            $config['banners'][$sliderSize - 1] = $imgName;
         }
 
-        // Delete old banners files
         if (isset($pageConfig->getConfig()['banners'])) {
             foreach ($pageConfig->getConfig()['banners'] as $banner) {
-                $this->thumbnailStorage->remove($banner);
+                if (false === array_search($banner, $bannersToSave)) {
+                    $this->thumbnailStorage->remove($banner);
+                }
             }
         }
 
-        // Save new banners
-        if (isset($payloadArray['banners'])) {
-            foreach ($payloadArray['banners'] as &$banner) {
-                $img = Base64ImageDecoder::decode($banner);
-                $imgName = self::CONFIG_NAME . '.banner.' . time() . '.' . $img->extension;
-                $this->thumbnailStorage->store($imgName, $img->data);
+        $this->pageConfigRepository->set($pageConfig, $config);
 
-                $banner = $imgName;
-            }
-        }
-
-        $this->pageConfigRepository->set($pageConfig, array_merge($arrayConfig, $payloadArray));
-
-        return $this->json($pageConfig);
+        return $this->get();
     }
 
     #[Route('/layout/footer/get', methods: ['GET'], format: 'json')]
-    public function get(
-        #[Autowire('%app.layout.thumbnail.folder.web%')] $thumbnailFolder,
-        PageConfigRepository $pageConfig
-    )
+    public function get()
     {
-        $pageConfig = $pageConfig->findByPageName(self::CONFIG_NAME);
+        $pageConfig = $this->pageConfigRepository->findByPageName(self::CONFIG_NAME);
         $config = null;
 
         if ($pageConfig) {
             $config = $pageConfig->getConfig();
             foreach ($config['banners'] as &$banner) {
-                $banner = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $thumbnailFolder . '/' . $banner;
+                $banner = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $this->thumbnailFolder . '/' . $banner;
             }
         }
 

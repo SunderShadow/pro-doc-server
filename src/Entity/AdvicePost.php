@@ -3,10 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\AdvicePostRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\Serializer\Attribute\Context;
 use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: AdvicePostRepository::class)]
@@ -22,8 +22,9 @@ class AdvicePost
 
     #[ORM\Column(nullable: true)]
     private string $thumbnailExtension;
-    private string $thumbnailURL;
+    private string $thumbnailUrl;
     private string $thumbnailFilepath;
+
 
     #[ORM\Column(type: 'text')]
     private string $excerpt;
@@ -69,9 +70,18 @@ class AdvicePost
         return $this->tags;
     }
 
-    public function setTags(Collection $tags): self
+    /**
+     * @param AdvicePostTag[] $tags
+     * @return $this
+     */
+    public function setTags(array $tags): self
     {
-        $this->tags = $tags;
+        $this->tags = new ArrayCollection();
+
+        foreach ($tags as $tag) {
+            $this->tags->add($tag);
+        }
+
         return $this;
     }
 
@@ -92,9 +102,9 @@ class AdvicePost
         return $this->thumbnailFilepath;
     }
 
-    public function getThumbnailURL(): string
+    public function getThumbnailUrl(): string
     {
-        return $this->thumbnailURL;
+        return $this->thumbnailUrl;
     }
 
     public function setThumbnail(File $thumbnail): self
@@ -105,7 +115,7 @@ class AdvicePost
 
     public function setThumbnailURLPrefix(string $prefix): self
     {
-        $this->thumbnailURL = $prefix . '/' . $this->id . '.' . $this->thumbnailExtension;
+        $this->thumbnailUrl = $prefix . '/' . $this->id . '.' . $this->thumbnailExtension;
         return $this;
     }
 

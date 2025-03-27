@@ -12,9 +12,13 @@ class Base64ImageDecoder
 
     public function __construct(string $base64data)
     {
-        $f = new \finfo();
+        $this->mime = mime_content_type($base64data);
+        if (str_starts_with($base64data, 'data:image')) {
+            $parts = explode(',', $base64data);
+            $base64data = $parts[1];
+        }
+
         $this->data = base64_decode($base64data);
-        $this->mime = $f->buffer($this->data, FILEINFO_MIME_TYPE);
         $this->extension = explode('/', $this->mime)[1];
     }
 

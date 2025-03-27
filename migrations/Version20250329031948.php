@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250326200239 extends AbstractMigration
+final class Version20250329031948 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -29,6 +29,10 @@ final class Version20250326200239 extends AbstractMigration
         $this->addSql('CREATE TABLE advice_post_tag_advice_post_tag (advice_post_tag_source INTEGER NOT NULL, advice_post_tag_target INTEGER NOT NULL, PRIMARY KEY(advice_post_tag_source, advice_post_tag_target), CONSTRAINT FK_1B24879AFCFBF42D FOREIGN KEY (advice_post_tag_source) REFERENCES advice_post_tag (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_1B24879AE51EA4A2 FOREIGN KEY (advice_post_tag_target) REFERENCES advice_post_tag (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE)');
         $this->addSql('CREATE INDEX IDX_1B24879AFCFBF42D ON advice_post_tag_advice_post_tag (advice_post_tag_source)');
         $this->addSql('CREATE INDEX IDX_1B24879AE51EA4A2 ON advice_post_tag_advice_post_tag (advice_post_tag_target)');
+        $this->addSql('CREATE TABLE page_config (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, page_name VARCHAR(255) NOT NULL, config CLOB NOT NULL --(DC2Type:json)
+        )');
+        $this->addSql('CREATE TABLE user (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, email VARCHAR(180) NOT NULL, roles CLOB NOT NULL --(DC2Type:json)
+        , password VARCHAR(255) NOT NULL)');
     }
 
     public function down(Schema $schema): void
@@ -38,5 +42,7 @@ final class Version20250326200239 extends AbstractMigration
         $this->addSql('DROP TABLE advice_post_advice_post_tag');
         $this->addSql('DROP TABLE advice_post_tag');
         $this->addSql('DROP TABLE advice_post_tag_advice_post_tag');
+        $this->addSql('DROP TABLE page_config');
+        $this->addSql('DROP TABLE user');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AdvicePostTagRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Ignore;
 
 #[ORM\Entity(repositoryClass: AdvicePostTagRepository::class)]
 class AdvicePostTag
@@ -26,8 +27,19 @@ class AdvicePostTag
         return $this->id;
     }
 
+    #[Ignore]
     public function getPosts(): Collection
     {
         return $this->posts;
+    }
+
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
     }
 }

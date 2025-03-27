@@ -15,4 +15,18 @@ class AdvicePostTagRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AdvicePostTag::class);
     }
+
+    /**
+     * @param array $names
+     * @return AdvicePostTag[]
+     */
+    public function findManyByNames(array $names): array
+    {
+        return $this->createQueryBuilder('x')
+            ->select()
+            ->where('x.title IN (:names)')
+            ->setParameter('names', $names)
+            ->getQuery()
+            ->getResult();
+    }
 }
