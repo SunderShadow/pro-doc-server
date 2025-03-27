@@ -95,9 +95,7 @@ Status: 200
     "vk": string,
     "telegram": string
   },
-  "banners": [
-    "banner-url"
-  ]
+  "banners": [string] // Base64 encoded images
 }
 ```
 

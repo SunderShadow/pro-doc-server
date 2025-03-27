@@ -5,7 +5,10 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.library.advice.thumbnail.folder.web: 'assets/library/advice'
-    app.library.advice.thumbnail.folder.local: '%kernel.project_dir%/library/advice'
+    app.library.advice.thumbnail.folder.local: '%kernel.project_dir%/var/library/advice'
+
+    app.layout.thumbnail.folder.web: 'assets/pages'
+    app.layout.thumbnail.folder.local: '%kernel.project_dir%/var/pages'
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -27,4 +30,9 @@ services:
     App\Contracts\Library\Advice\PostThumbnailStorage:
         class: App\Service\Library\Advice\PostThumbnailStorage
         arguments:
-            $namespace: '%app.library.advice.thumbnail.folder.local%'
+            $rootPath: '%app.library.advice.thumbnail.folder.local%'
+
+    App\Contracts\Layout\ThumbnailStorage:
+        class: App\Service\Layout\PageThumbnailStorage
+        arguments:
+            $rootPath: '%app.layout.thumbnail.folder.local%'

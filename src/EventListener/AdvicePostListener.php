@@ -19,7 +19,7 @@ final class AdvicePostListener
 
     public function setThumbnailPrefix(AdvicePost $post): void
     {
-        $post->setThumbnailURLPrefix($_SERVER['HTTP_HOST'] . '/' . $this->thumbnailWebPath);
+        $post->setThumbnailURLPrefix('http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $this->thumbnailWebPath);
         $post->setThumbnailFilepathPrefix($this->thumbnailLocalPath);
     }
 }

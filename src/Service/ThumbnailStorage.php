@@ -7,15 +7,11 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class ThumbnailStorage implements \App\Contracts\ThumbnailStorage
 {
-    public readonly string $rootPath;
-
     public function __construct(
-        private readonly string $namespace,
+        private readonly string $rootPath,
         private readonly Filesystem $fs,
-        #[Autowire('%kernel.project_dir%')] private readonly string $projectRoot,
     )
     {
-        $this->rootPath = $this->projectRoot . '/var/' . $this->namespace;
     }
 
     public function store(string $name, string $data): void
