@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\AdminDashboard\Library;
+namespace App\Controller\AdminDashboard;
 
 use App\Contracts\Library\Advice\PostStorage;
 use App\Contracts\Library\Advice\PostThumbnailStorage;
@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
-class AdviceController extends AbstractController
+class PromotionController extends AbstractController
 {
     public function __construct(
         private AdvicePostRepository $postRepository,
@@ -79,16 +79,13 @@ class AdviceController extends AbstractController
     }
 
     #[Route('/library/advice/list', 'library.advice.list', methods: ['GET'])]
-    public function getList(
-        Request $request,
-        AdvicePostRepository $postRepository
-    ): JsonResponse
+    public function getList(Request $request): JsonResponse
     {
         $payload = new GetAdvicePostsDTO(
             page: $request->request->get('page', 1)
         );
 
-        return $this->json($postRepository->findAllPaginated($payload->page));
+        return $this->json($this->postRepository->findAllPaginated($payload->page));
     }
 
     #[Route('/library/advice/{post}', 'library.advice.post', methods: ['GET'])]

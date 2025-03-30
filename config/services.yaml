@@ -30,18 +30,16 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Service\ThumbnailStorage $serviceThumbnailStorage: '@service.thumbnail.storage'
-    App\Service\WebPathResolver $serviceThumbnailWebpathResolver: '@service.web_path_resolver'
-
-    service.thumbnail.storage:
+    App\Service\ThumbnailStorage $serviceThumbnailStorage:
         class: App\Service\ThumbnailStorage
         arguments:
             $rootPath: '%app.services.thumbnail.folder.local%'
 
-    service.web_path_resolver:
+    App\Service\WebPathResolver $serviceThumbnailWebpathResolver:
         class: App\Service\WebPathResolver
         arguments:
             $namespace: '%app.services.thumbnail.folder.web%'
+
 
     App\Contracts\Library\Advice\PostThumbnailStorage:
         class: App\Service\Library\Advice\PostThumbnailStorage

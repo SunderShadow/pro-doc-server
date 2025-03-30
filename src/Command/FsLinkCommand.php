@@ -30,17 +30,17 @@ class FsLinkCommand extends Command
     {
         $this->fs->symlink(
             $this->projectRoot . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'library',
-            $this->assetsFolderpath . DIRECTORY_SEPARATOR . '/library'
+            $this->assetsFolderpath . DIRECTORY_SEPARATOR . 'library'
         );
 
         $this->fs->symlink(
             $this->projectRoot . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'pages',
-            $this->assetsFolderpath . DIRECTORY_SEPARATOR . '/pages'
+            $this->assetsFolderpath . DIRECTORY_SEPARATOR . 'pages'
         );
 
         $this->fs->symlink(
             $this->projectRoot . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'services',
-            $this->assetsFolderpath . DIRECTORY_SEPARATOR . '/services'
+            $this->assetsFolderpath . DIRECTORY_SEPARATOR . 'services'
         );
 
         return self::SUCCESS;

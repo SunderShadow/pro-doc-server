@@ -25,6 +25,10 @@ class AdvicePost
     private string $thumbnailUrl;
     private string $thumbnailFilepath;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $published;
+    #[ORM\Column(type: 'time_immutable', nullable: true)]
+    private ?\DateTimeInterface $publishedAt;
 
     #[ORM\Column(type: 'text')]
     private string $excerpt;

@@ -58,9 +58,11 @@ class HomePageController extends AbstractController
             $config['slider'][$sliderSize - 1]['thumbnail'] = $imgName;
         }
 
-        foreach ($pageConfig->getConfig()['slider'] as $slide) {
-            if (false === array_search($slide['thumbnail'], $thumbnailsToSave)) {
-                $this->thumbnailStorage->remove($slide['thumbnail']);
+        if (isset($pageConfig->getConfig()['slider'])) {
+            foreach ($pageConfig->getConfig()['slider'] as $slide) {
+                if (false === array_search($slide['thumbnail'], $thumbnailsToSave)) {
+                    $this->thumbnailStorage->remove($slide['thumbnail']);
+                }
             }
         }
 
@@ -79,7 +81,7 @@ class HomePageController extends AbstractController
             $config = $pageConfig->getConfig();
             foreach ($config['slider'] as &$slide) {
                 if (!str_starts_with($slide['thumbnail'], 'http')) {
-                    $slide['thumbnail'] = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $this->thumbnailFolder . '/' . $slide['thumbnail'];
+                    $slide['thumbnail'] = 'http' . '://' . $_SERVER['HTTP_HOST'] . '/' . $this->thumbnailFolder . '/' . $slide['thumbnail'];
                 }
             }
         }

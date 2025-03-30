@@ -64,7 +64,7 @@ class ServicesController extends AbstractController
             $this->serviceThumbnailStorage->remove($service->getThumbnail());
 
             $service->setThumbnail($decodedImageName);
-        }
+        }       
         $this->entityManager->persist($service);
         $this->entityManager->flush($service);
 

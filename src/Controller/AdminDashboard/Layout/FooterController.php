@@ -85,7 +85,7 @@ class FooterController extends AbstractController
         if ($pageConfig) {
             $config = $pageConfig->getConfig();
             foreach ($config['banners'] as &$banner) {
-                $banner = 'http' . ($_SERVER['HTTPS'] ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/' . $this->thumbnailFolder . '/' . $banner;
+                $banner = 'http' . '://' . $_SERVER['HTTP_HOST'] . '/' . $this->thumbnailFolder . '/' . $banner;
             }
         }
 
