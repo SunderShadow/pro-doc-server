@@ -9,6 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[AsCommand(
     name: 'app:make-admin',
@@ -16,7 +17,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class MakeAdminCommand extends Command
 {
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(
+        private UserPasswordHasherInterface $passwordHasher,
+        private EntityManagerInterface $entityManager)
     {
         parent::__construct();
     }
@@ -35,9 +38,12 @@ class MakeAdminCommand extends Command
         $password = $input->getArgument('password');
 
         $user = new User();
+
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $password);
+
         $user->setEmail($username);
-        $user->setPassword($password);
-        $user->setRoles(['ROLE_ADMIN']);
+        $user->setPassword($hashedPassword);
+        $user->setRoles(['ADMIN']);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
