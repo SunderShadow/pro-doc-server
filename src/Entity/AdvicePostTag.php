@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\AdvicePostTagRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Ignore;
@@ -19,8 +20,13 @@ class AdvicePostTag
     #[ORM\Column]
     private string $title;
 
-    #[ORM\ManyToMany(targetEntity: AdvicePostTag::class, inversedBy: 'posts')]
+    #[ORM\ManyToMany(targetEntity: AdvicePost::class, inversedBy: 'tags')]
     private Collection $posts;
+
+    public function __construct()
+    {
+        $this->posts = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -31,6 +37,20 @@ class AdvicePostTag
     public function getPosts(): Collection
     {
         return $this->posts;
+    }
+
+    public function addPost(AdvicePost $post): self
+    {
+        $this->posts->add($post);
+
+        return $this;
+    }
+
+    public function removePost(AdvicePost $post): self
+    {
+        $this->posts->removeElement($post);
+
+        return $this;
     }
 
     public function getTitle(): string

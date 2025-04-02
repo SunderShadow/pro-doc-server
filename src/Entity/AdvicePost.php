@@ -25,8 +25,8 @@ class AdvicePost
     private string $thumbnailUrl;
     private string $thumbnailFilepath;
 
-    #[ORM\Column(options: ['default' => false])]
-    private bool $published;
+    #[ORM\Column]
+    private bool $isPublished = false;
     #[ORM\Column(type: 'time_immutable', nullable: true)]
     private ?\DateTimeInterface $publishedAt;
 
@@ -39,8 +39,13 @@ class AdvicePost
     #[ORM\Column(type: 'time_immutable', options: ['default' => 'now()'])]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\ManyToMany(targetEntity: AdvicePostTag::class, inversedBy: 'posts')]
+    #[ORM\ManyToMany(targetEntity: AdvicePostTag::class, mappedBy: 'posts')]
     private Collection $tags;
+
+    public function __construct()
+    {
+        $this->tags = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -69,22 +74,17 @@ class AdvicePost
         return $this->excerpt;
     }
 
+    /**
+     * @return Collection<AdvicePostTag>
+     */
     public function getTags(): Collection
     {
         return $this->tags;
     }
 
-    /**
-     * @param AdvicePostTag[] $tags
-     * @return $this
-     */
-    public function setTags(array $tags): self
+    public function addTag(AdvicePostTag $tag): self
     {
-        $this->tags = new ArrayCollection();
-
-        foreach ($tags as $tag) {
-            $this->tags->add($tag);
-        }
+        $this->tags->add($tag);
 
         return $this;
     }
@@ -138,5 +138,32 @@ class AdvicePost
     {
         $this->body = $body;
         return $this;
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->isPublished;
+    }
+
+    public function publish(): void
+    {
+        $this->isPublished = true;
+        $this->publishedAt = new \DateTimeImmutable();
+    }
+
+    public function isDraft(): bool
+    {
+        return !$this->isPublished();
+    }
+
+    public function draft(): void
+    {
+        $this->isPublished = false;
+        $this->publishedAt = null;
+    }
+
+    public function getPublishedAt(): ?\DateTimeInterface
+    {
+        return $this->publishedAt;
     }
 }

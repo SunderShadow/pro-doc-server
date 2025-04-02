@@ -29,4 +29,43 @@ class AdvicePostTagRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function removeUnrelatedTags(): void
+    {
+        foreach($this->findAll() as $tag) {
+            if ($tag->getPosts()->count() === 0) {
+                $this->getEntityManager()->remove($tag);
+            }
+        }
+
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @param array<string> $tags
+     * @return array<AdvicePostTag>
+     */
+    public function registerTags(array $tags): array
+    {
+        $registeredTags = $this->findManyByNames($tags);
+
+        foreach ($tags as $tag) {
+            $tagExist = false;
+            foreach ($registeredTags as $existTag) {
+                if ($existTag->getTitle() === $tag) {
+                    $tagExist = true;
+                    break;
+                }
+            }
+
+            if (!$tagExist) {
+                $newTag = new AdvicePostTag();
+                $newTag->setTitle($tag);
+                $registeredTags[] = $newTag;
+                $this->getEntityManager()->persist($newTag);
+            }
+        }
+
+        return $registeredTags;
+    }
 }

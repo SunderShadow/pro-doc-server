@@ -8,17 +8,16 @@ use App\DTO\AdminDashboard\Library\CreateAdviceDTO;
 use App\DTO\AdminDashboard\Library\EditAdviceDTO;
 use App\DTO\AdminDashboard\Library\GetAdvicePostsDTO;
 use App\Entity\AdvicePost;
-use App\Entity\AdvicePostTag;
 use App\Repository\AdvicePostRepository;
 use App\Repository\AdvicePostTagRepository;
 use App\Service\Base64ImageDecoder;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class AdviceController extends AbstractController
@@ -26,16 +25,38 @@ class AdviceController extends AbstractController
     public function __construct(
         private AdvicePostRepository $postRepository,
         private AdvicePostTagRepository $postTagRepository,
-        private EntityManagerInterface $entityManager
+        private MailerInterface $mailer,
+        private PostStorage $postStorage,
+        private PostThumbnailStorage $postThumbnailStorage,
     )
     {
+    }
+
+    #[Route('/library/advice/list', 'library.advice.list', methods: ['GET'])]
+    public function getPublishedList(Request $request): JsonResponse
+    {
+        $payload = new GetAdvicePostsDTO(
+            page: $request->request->get('page', 1)
+        );
+
+        return $this->json($this->postRepository->findAllPublishedPaginated($payload->page));
+    }
+
+    #[Route('/library/advice/{post}', 'library.advice.post', methods: ['GET'])]
+    public function getPublishedSingle(#[MapEntity] AdvicePost $post): JsonResponse
+    {
+        if ($post->isPublished()) {
+            return $this->json($post);
+        } else {
+            return $this->json([
+                'message' => 'Нет опубликованных постов'
+            ], 404);
+        }
     }
 
     #[Route('/admin/library/advice/create', 'library.advice.create', methods: ['PUT'])]
     public function create(
         #[MapRequestPayload] CreateAdviceDTO $payload,
-        PostThumbnailStorage                 $thumbnailStorage,
-        PostStorage                          $postStorage,
     ): JsonResponse
     {
         $post = new AdvicePost();
@@ -44,54 +65,31 @@ class AdviceController extends AbstractController
         $post->setBody($payload->body);
         $post->setCreatedAt(new \DateTimeImmutable());
 
-        $existTags = $this->postTagRepository->findManyByNames($payload->tags);
+        $tags = $this->postTagRepository->registerTags($payload->tags);
 
-        foreach ($payload->tags as $tag) {
-            $tagExist = false;
-            foreach ($existTags as $existTag) {
-                if ($existTag->getTitle() === $tag) {
-                    $tagExist = true;
-                    break;
-                }
-            }
-
-            if (!$tagExist) {
-                $newTag = new AdvicePostTag();
-                $newTag->setTitle($tag);
-                $existTags[] = $newTag;
-                $this->entityManager->persist($newTag);
-            }
-        }
-
-        $this->entityManager->flush();
-        $post->setTags($existTags);
-
-        $postStorage->save($post);
+        $this->postStorage->bindTags($post, $tags);
 
         $img = Base64ImageDecoder::decode($payload->thumbnail);
         $imgName = $post->getId() . '.' . $img->extension;
-        $thumbnailStorage->store($imgName, $img->data);
+        $this->postThumbnailStorage->store($imgName, $img->data);
 
-        $post->setThumbnail(new File($thumbnailStorage->getFilepath($imgName)));
-        $postStorage->save($post);
+        $post->setThumbnail(new File($this->postThumbnailStorage->getFilepath($imgName)));
+        $this->postStorage->save($post);
 
         return $this->json($post);
     }
 
-    #[Route('/library/advice/list', 'library.advice.list', methods: ['GET'])]
-    public function getList(
-        Request $request,
-        AdvicePostRepository $postRepository
-    ): JsonResponse
+    #[Route('/admin/library/advice/list', 'library.advice.list', methods: ['GET'])]
+    public function getList(Request $request): JsonResponse
     {
         $payload = new GetAdvicePostsDTO(
             page: $request->request->get('page', 1)
         );
 
-        return $this->json($postRepository->findAllPaginated($payload->page));
+        return $this->json($this->postRepository->findAllPaginated($payload->page));
     }
 
-    #[Route('/library/advice/{post}', 'library.advice.post', methods: ['GET'])]
+    #[Route('/admin/library/advice/{post}', 'library.advice.post', methods: ['GET'])]
     public function getSingle(#[MapEntity] AdvicePost $post): JsonResponse
     {
         return $this->json($post);
@@ -101,8 +99,6 @@ class AdviceController extends AbstractController
     public function edit(
         #[MapRequestPayload] EditAdviceDTO   $payload,
         #[MapEntity] AdvicePost              $post,
-        PostThumbnailStorage                 $thumbnailStorage,
-        PostStorage                          $postStorage,
     ): JsonResponse
     {
         if ($payload->title) {
@@ -120,44 +116,44 @@ class AdviceController extends AbstractController
         if ($payload->thumbnail && !str_starts_with($payload->thumbnail, 'http')) {
             $img = Base64ImageDecoder::decode($payload->thumbnail);
             $imgName = $post->getId() . '.' . $img->extension;
-            $thumbnailStorage->replace($imgName, $img->data);
+            $this->postThumbnailStorage->replace($imgName, $img->data);
         }
 
         if ($payload->tags) {
-            $existTags = $this->postTagRepository->findManyByNames($payload->tags);
+            $tags = $this->postTagRepository->registerTags($payload->tags);
 
-            foreach ($payload->tags as $tag) {
-                $tagExist = false;
-                foreach ($existTags as $existTag) {
-                    if ($existTag->getTitle() === $tag) {
-                        $tagExist = true;
-                        break;
-                    }
-                }
-
-                if (!$tagExist) {
-                    $newTag = new AdvicePostTag();
-                    $newTag->setTitle($tag);
-                    $existTags[] = $newTag;
-                    $this->entityManager->persist($newTag);
-                }
-            }
-            $this->entityManager->flush();
-            $post->setTags($existTags);
+            $this->postStorage->bindTags($post, $tags);
         }
 
-        $postStorage->save($post);
+        $this->postStorage->save($post);
 
         return $this->json($post);
     }
 
     #[Route('/admin/library/advice/{post}/delete', 'library.advice.delete', methods: ['DELETE'])]
     public function delete(
-        #[MapEntity] AdvicePost $post,
-        PostStorage $postStorage,
+        #[MapEntity] AdvicePost $post
     ) : JsonResponse
     {
-        $postStorage->delete($post);
+        $this->postStorage->delete($post);
+        return $this->json(true);
+    }
+
+    #[Route('/admin/library/advice/{post}/publish', 'library.advice.publish', methods: ['PATCH'])]
+    public function publish(
+        #[MapEntity] AdvicePost $post
+    )
+    {
+        $this->postStorage->publish($post);
+        return $this->json(true);
+    }
+
+    #[Route('/admin/library/advice/{post}/draft', 'library.advice.draft', methods: ['PATCH'])]
+    public function draft(
+        #[MapEntity] AdvicePost $post
+    )
+    {
+        $this->postStorage->draft($post);
         return $this->json(true);
     }
 }
