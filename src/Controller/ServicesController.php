@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controller\AdminDashboard;
+namespace App\Controller;
 
-use App\Controller\DTO\AdminDashboard\Service\ServiceAddDTO;
-use App\Controller\DTO\AdminDashboard\Service\ServiceEditDTO;
+use App\DTO\AdminDashboard\Service\ServiceAddDTO;
+use App\DTO\AdminDashboard\Service\ServiceEditDTO;
 use App\Entity\Service;
 use App\Repository\ServiceRepository;
 use App\Service\Base64ImageDecoder;

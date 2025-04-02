@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controller\DTO\AdminDashboard\Layout;
+namespace App\DTO\AdminDashboard\Layout;
 
-use App\Controller\DTO\AdminDashboard\Layout\HomePage\QA_DTO;
-use App\Controller\DTO\AdminDashboard\Layout\HomePage\SliderDTO;
+use App\DTO\AdminDashboard\Layout\HomePage\QA_DTO;
+use App\DTO\AdminDashboard\Layout\HomePage\SliderDTO;
 
 readonly class HomePageConfigDTO
 {

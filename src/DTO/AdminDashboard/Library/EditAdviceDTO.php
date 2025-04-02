@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\DTO\AdminDashboard\Library;
+namespace App\DTO\AdminDashboard\Library;
 use Symfony\Component\Validator\Constraints as Assert;
 
 readonly class EditAdviceDTO

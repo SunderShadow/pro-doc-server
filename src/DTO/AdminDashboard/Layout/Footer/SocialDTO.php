@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\DTO\AdminDashboard\Layout\Footer;
+namespace App\DTO\AdminDashboard\Layout\Footer;
 
 readonly class SocialDTO
 {

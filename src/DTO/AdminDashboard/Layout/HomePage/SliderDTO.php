@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\DTO\AdminDashboard\Layout\HomePage;
+namespace App\DTO\AdminDashboard\Layout\HomePage;
 
 readonly class SliderDTO
 {

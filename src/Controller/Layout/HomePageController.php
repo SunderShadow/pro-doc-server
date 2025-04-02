@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Controller\AdminDashboard\Layout;
+namespace App\Controller\Layout;
 
 use App\Contracts\Layout\ThumbnailStorage;
-use App\Controller\DTO\AdminDashboard\Layout\HomePageConfigDTO;
+use App\DTO\AdminDashboard\Layout\HomePageConfigDTO;
 use App\Entity\PageConfig;
 use App\Repository\PageConfigRepository;
 use App\Service\Base64ImageDecoder;

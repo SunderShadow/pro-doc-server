@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\DTO\AdminDashboard\Service;
+namespace App\DTO\AdminDashboard\Service;
 
 readonly class ServiceAddDTO
 {

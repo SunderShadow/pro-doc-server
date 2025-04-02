@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller\DTO\AdminDashboard\Layout;
+namespace App\DTO\AdminDashboard\Layout;
 
-use App\Controller\DTO\AdminDashboard\Layout\Footer\SocialDTO;
+use App\DTO\AdminDashboard\Layout\Footer\SocialDTO;
 
 readonly class FooterConfigDTO
 {

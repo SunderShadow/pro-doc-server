@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\AdminDashboard\Layout;
+namespace App\Controller\Layout;
 
 class HeaderController
 {

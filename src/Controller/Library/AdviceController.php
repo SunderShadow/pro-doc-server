@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controller\AdminDashboard\Library;
+namespace App\Controller\Library;
 
 use App\Contracts\Library\Advice\PostStorage;
 use App\Contracts\Library\Advice\PostThumbnailStorage;
-use App\Controller\DTO\AdminDashboard\Library\CreateAdviceDTO;
-use App\Controller\DTO\AdminDashboard\Library\EditAdviceDTO;
-use App\Controller\DTO\AdminDashboard\Library\GetAdvicePostsDTO;
+use App\DTO\AdminDashboard\Library\CreateAdviceDTO;
+use App\DTO\AdminDashboard\Library\EditAdviceDTO;
+use App\DTO\AdminDashboard\Library\GetAdvicePostsDTO;
 use App\Entity\AdvicePost;
 use App\Entity\AdvicePostTag;
 use App\Repository\AdvicePostRepository;

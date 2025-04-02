@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\DTO\AdminDashboard\Library;
+namespace App\DTO\AdminDashboard\Library;
 
 readonly class CreateAdviceDTO
 {
